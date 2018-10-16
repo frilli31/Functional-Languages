@@ -45,6 +45,31 @@ test :: [Char] -> Bool
 test ['a', _, _] = True
 test _ = False
 
+thirdWithExclamation :: [a] -> a
+thirdWithExclamation list = list !! 2
+
+thirdWithHeadTail :: [a] -> a
+thirdWithHeadTail list = head (tail (tail list))
+
+thirdWithPaternMatching :: [a] -> a
+thirdWithPaternMatching (n:ns:nss:[])= nss
+
+{-define safetail :: [a]->[a] 
+that behaves like tail except that with [], insted of failing, answers []. 
+We can use tail and null :: [a] -> Bool that answers True iff the input is an empty list, 
+define safetail using: a) a conditional expression b) guarded equations c) pattern matching
+-}
+safetailWithCondExpr :: [a]->[a]
+safetailWithCondExpr list =
+    if null list
+        then []
+        else tail list
+
+safetailWithCondExpr list | list == [] = []
+                          | list = tail list
+
+safetailWithPatternMatch [] = []
+safetailWithPatternMatch (x:xs) = xs
 
 main :: IO()
 main = do
@@ -59,3 +84,7 @@ main = do
     print (test ['a', 'b', 'c'])    -- True
     print (test "abc")              -- True
     print (test "abcd")             -- False
+    print (thirdWithExclamation [1,2,3])
+    print (thirdWithHeadTail [1,2,3])
+    print (thirdWithPaternMatching [1,2,3])
+    print (safetailWithCondExpr [1,2,3,4])
