@@ -1,0 +1,5 @@
+Haskelll inferes the types of the programmes
+
+show us possible errors
+
+ 
