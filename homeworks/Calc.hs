@@ -1,22 +1,25 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances  #-}
 
 module Calc where
 
 import Prelude  
 import ExprT
 import Parser
+import StackVM
 
 testExp :: Expr a => String -> Maybe a
 testExp = parseExp lit add mul 
 
 eval :: ExprT -> Integer
 eval (Lit x) = x
-eval (Add x y) = eval x + eval y
-eval (Mul x y) = eval x * eval y
+eval (ExprT.Add x y) = eval x + eval y
+eval (ExprT.Mul x y) = eval x * eval y
 
 
 evalStr :: String -> Maybe Integer
-evalStr s = case parseExp Lit Add Mul s of
+evalStr s = case parseExp Lit ExprT.Add ExprT.Mul s of
     Just x -> Just (eval x)
     Nothing -> Nothing
 
@@ -52,14 +55,19 @@ instance Expr Mod7 where
     lit x = Mod7 x
     add (Mod7 a) (Mod7 b) = Mod7 ((a+b) `mod` 7)
     mul (Mod7 a) (Mod7 b) = Mod7((a*b) `mod` 7)
-    
-    
-      
+
+
 reify :: ExprT -> ExprT
 reify = id
 
+instance Expr StackVM.Program where
+    lit i = [StackVM.PushI i]
+    add a b = b ++ a ++ [StackVM.Add]
+    mul a b = b ++ a ++ [StackVM.Mul]
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
 
 main :: IO ()
 main = do
-    print (eval (Mul (Add (Lit 2) (Lit 3)) (Lit 4)))
     print (evalStr "2+3*4")
